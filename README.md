@@ -10,6 +10,7 @@ This will send an email to group_email@gmail.com when there is 1 day to go in ga
 
 #### Usage
 
+```
 Usage: dip_reminder.py [OPTIONS]
 
   Send the reminder email if environment variables are set and the day
@@ -21,3 +22,4 @@ Options:
   --email TEXT     What email should I send the reminder to?  [required]
   --game_id TEXT   Diplomacy game ID  [required]
   --help           Show this message and exit.
+```
