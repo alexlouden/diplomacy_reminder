@@ -2,7 +2,7 @@
 
 A python 3 script to send a reminder to an email that a webdiplomacy round is about to end.
 
-### Example
+#### Example
 
 This will send an email to group_email@gmail.com when there is 1 day to go in game ID 12345.
 
