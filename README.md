@@ -6,7 +6,7 @@ A python script to send a reminder to an email that a webdiplomacy round is abou
 
 This will send an email to group_email@gmail.com when there is 1 day to go in game ID 12345.
 
-`python dip_reminder.py --mail group_email@gmail.com --gmae_id 12345 --days 1`
+`python dip_reminder.py --mail group_email@gmail.com --game_id 12345 --days 1`
 
 #### Usage
 
