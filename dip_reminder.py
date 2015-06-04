@@ -1,5 +1,5 @@
 '''
-A script to send reminders to email addresses when diplomacy turns is over
+A script to send reminders to email address when diplmacy turn is nearly over
 '''
 
 import requests
@@ -26,8 +26,9 @@ def get_time_left(game_id):
     now = datetime.now()
     # timeremaining is the class of the diplomacy span
     # it includes the due date in epoch time
-    due_time = datetime.fromtimestamp(int(soup.find('span',
-        {"class": "timeremaining"}).attrs['unixtime']))
+    due_time = datetime.fromtimestamp(
+        int(soup.find('span', {"class": "timeremaining"}).attrs['unixtime'])
+        )
     time_left = due_time - now
     return time_left
 
@@ -45,13 +46,17 @@ def send_email(group_address, time_left):
     # Send this message
     msg = 'DiploBot Reminder--There are %s day(s)' \
           'remaining until the next turn' % time_left
-    print(msg)
-    server = smtplib.SMTP("smtp.gmail.com:587")
-    server.starttls()
-    server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
-    server.sendmail(GMAIL_ADDRESS, group_address, msg)
-    server.quit()
+    
+    try:
+        server = smtplib.SMTP("smtp.gmail.com:587")
+        server.starttls()
+        server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
+        server.sendmail(GMAIL_ADDRESS, group_address, msg)
+        server.quit()
+        print('Mail sent with message: %s') % msg
 
+    except smtplib.SMTPException:
+        print('Unable to send mail')
 
 def set_last_reminder():
     '''
@@ -61,22 +66,15 @@ def set_last_reminder():
     last_reminder.append(datetime.now())
     with open('last_reminder.p', 'wb') as pickle_file:
         pickle.dump(last_reminder, pickle_file)
+        return 'Item pickled'
 
 
-@click.command()
-@click.option('--days', default=1, help='How many days left before reminder')
-@click.option('--phase', default=7, help='How many days per phase?')
-@click.option('--email', help='What email should I send the reminder to?',
-              required=True)
-@click.option('--game_id', help='Diplomacy game ID', required=True)
-
-def reminder(days, phase, email, game_id):
+def get_last_reminder():
     '''
-    Send the reminder email if environment variables are set and the day
-    threshold has been met
-    '''
-    days_left = get_time_left(game_id).days
+    Get the last reminder date from the pickled file
 
+    Returns: datetime object of the last time a reminder was sent
+    '''
     try:
         last_reminder = pickle.load(open('last_reminder.p', 'rb'))[0]
         print('Last reminder sent on: ' +
@@ -87,13 +85,45 @@ def reminder(days, phase, email, game_id):
         last_reminder = datetime.fromtimestamp(1)
         print('No last reminder time')
 
-    # If the last reminder was longer than a phase ago and it's now in the
-    # reminder time then send the reminder!
-    if (datetime.now() - last_reminder).days > phase and days_left <= days:
-        send_email(email, days_left)
-        set_last_reminder()
+    return last_reminder
+
+
+def reminder_required(days, days_left, last_reminder, phase):
+    '''
+    Test if a reminder is required
+    '''
+    # If days since last reminder is more than the length of the phase
+    if (datetime.now()- last_reminder).days > phase:
+        # If number of days_left is less than or equal to the desired reminder
+        # threshold
+        if days_left < days:
+            return True
+        else:
+            return 'Reminder threshold not met'
     else:
-        print('No reminder required at this point')
+        return 'Reminder already sent this phase'
+
+
+@click.command()
+@click.option('--days', default=1, help='How many days left before reminder is sent')
+@click.option('--phase', default=7, help='How many days per phase?')
+@click.option('--email', help='What email should I send the reminder to?',
+              required=True)
+@click.option('--game_id', help='Diplomacy game ID', required=True)
+def reminder(days, phase, email, game_id):
+    '''
+    Send the reminder email if environment variables are set and the day
+    threshold has been met
+    '''
+    days_left = get_time_left(game_id).days
+    last_reminder = get_last_reminder()
+    reminder_needed = reminder_required(days, days_left, last_reminder, phase)
+
+    if reminder_needed:
+        send_email(email, days_left)
+    else:
+        # If reminder is not true, then return the error message
+        print(reminder)
 
 
 if __name__ == '__main__':
