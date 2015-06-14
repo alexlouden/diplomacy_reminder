@@ -27,7 +27,8 @@ class TestDipReminder(unittest.TestCase):
         self.assertEqual(
             reminder_required(
                 days=3, days_left=2,
-                last_reminder=datetime.fromtimestamp(1), phase=7), True)
+                last_reminder=datetime.fromtimestamp(1), phase=7)['required'],
+            True)
 
 
     def test_reminder_already_sent(self):
@@ -36,8 +37,9 @@ class TestDipReminder(unittest.TestCase):
         '''
         self.assertEqual(
             reminder_required(
-                days=3, days_left=2, last_reminder=datetime.now(), phase=7),
-            'Reminder already sent this phase')
+                days=3, days_left=2,
+                last_reminder=datetime.now(), phase=7)['message'],
+            'Reminder already sent this turn')
 
 
     def test_reminder_threshold_not_met(self):
@@ -48,7 +50,7 @@ class TestDipReminder(unittest.TestCase):
         self.assertEqual(
             reminder_required(
                 days=1, days_left=2,
-                last_reminder=datetime.fromtimestamp(0), phase=7),
+                last_reminder=datetime.fromtimestamp(0), phase=7)['message'],
             'Reminder threshold not met')
 
 
@@ -68,7 +70,7 @@ class TestDipReminder(unittest.TestCase):
         Checks that an email will be sent
         '''
         self.assertNotEqual(
-            send_email('barry.manilow', 1),
+            send_email('thmcmahon@gmail.com', 1),
             'Unable to send mail'
             )
 

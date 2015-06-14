@@ -53,7 +53,7 @@ def send_email(group_address, time_left):
         server.login(GMAIL_ADDRESS, GMAIL_PASSWORD)
         server.sendmail(GMAIL_ADDRESS, group_address, msg)
         server.quit()
-        print('Mail sent with message: %s') % msg
+        # print('Mail sent with message: %s') % msg
 
     except smtplib.SMTPException:
         print('Unable to send mail')
@@ -93,19 +93,20 @@ def reminder_required(days, days_left, last_reminder, phase):
     Test if a reminder is required
     '''
     # If days since last reminder is more than the length of the phase
-    if (datetime.now()- last_reminder).days > phase:
+    if ( datetime.now() - last_reminder ).days > phase:
         # If number of days_left is less than or equal to the desired reminder
         # threshold
         if days_left < days:
-            return True
+            return {'required': True, 'message': 'Email required'}
         else:
-            return 'Reminder threshold not met'
+            return {'required': False, 'message': 'Reminder threshold not met'}
     else:
-        return 'Reminder already sent this phase'
+        return {'required': False, 'message': 'Reminder already sent this turn'}
 
 
 @click.command()
-@click.option('--days', default=1, help='How many days left before reminder is sent')
+@click.option('--days', default=1,
+              help='How many days left before reminder is sent')
 @click.option('--phase', default=7, help='How many days per phase?')
 @click.option('--email', help='What email should I send the reminder to?',
               required=True)
@@ -119,11 +120,13 @@ def reminder(days, phase, email, game_id):
     last_reminder = get_last_reminder()
     reminder_needed = reminder_required(days, days_left, last_reminder, phase)
 
-    if reminder_needed:
+    if reminder_needed['required']:
         send_email(email, days_left)
+        set_last_reminder()
+        print('Reminder email sent to %s' % email)
     else:
         # If reminder is not true, then return the error message
-        print(reminder)
+        print(reminder_needed['message'])
 
 
 if __name__ == '__main__':
