@@ -82,7 +82,7 @@ def get_last_reminder():
         print('Last reminder sent on: ' +
               datetime.strftime(last_reminder, '%d/%m/%y'))
 
-    except FileNotFoundError:
+    except IOError:
         # Set the last reminder time to aincent to force script to run
         last_reminder = datetime.fromtimestamp(1)
         print('No last reminder time')
