@@ -77,12 +77,12 @@ def get_last_reminder():
     Returns: datetime object of the last time a reminder was sent
     '''
     try:
-        last_reminder = pickle.load(open('last_reminder.p', 'rb'))[0]
-        print('Last reminder sent on: ' +
-              datetime.strftime(last_reminder, '%d/%m/%y'))
+        with open('last_reminder.p', 'rb') as f:
+            last_reminder = pickle.load(f)[0]
+            print('Last reminder sent on: {:%d/%m/%y}'.format(last_reminder))
 
     except IOError:
-        # Set the last reminder time to aincent to force script to run
+        # Set the last reminder time to ancient to force script to run
         last_reminder = datetime.fromtimestamp(1)
         print('No last reminder time')
 
