@@ -1,14 +1,15 @@
 '''
 A script to send reminders to email address when diplmacy turn is nearly over
 '''
+import os
+import pickle
+import smtplib
+from datetime import datetime
 
+import click
 import requests
 from bs4 import BeautifulSoup
-from datetime import datetime
-import smtplib
-import os
-import click
-import pickle
+
 
 GMAIL_ADDRESS = os.environ.get('GMAIL_ADDRESS')
 GMAIL_PASSWORD = os.environ.get('GMAIL_PASSWORD')
@@ -28,7 +29,7 @@ def get_time_left(game_id):
     # it includes the due date in epoch time
     due_time = datetime.fromtimestamp(
         int(soup.find('span', {"class": "timeremaining"}).attrs['unixtime'])
-        )
+    )
     time_left = due_time - now
     return time_left
 
@@ -46,7 +47,7 @@ def send_email(group_address, time_left):
     # Send this message
     msg = 'DiploBot Reminder--There are %s day(s)' \
           'remaining until the next turn' % time_left
-    
+
     try:
         server = smtplib.SMTP("smtp.gmail.com:587")
         server.starttls()
@@ -57,6 +58,7 @@ def send_email(group_address, time_left):
 
     except smtplib.SMTPException:
         print('Unable to send mail')
+
 
 def set_last_reminder():
     '''
@@ -93,7 +95,7 @@ def reminder_required(days, days_left, last_reminder, phase):
     Test if a reminder is required
     '''
     # If days since last reminder is more than the length of the phase
-    if ( datetime.now() - last_reminder ).days > phase:
+    if (datetime.now() - last_reminder).days > phase:
         # If number of days_left is less than or equal to the desired reminder
         # threshold
         if days_left < days:
