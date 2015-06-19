@@ -41,7 +41,7 @@ def send_email(group_address, time_left):
     '''
 
     # Check keys are set
-    if GMAIL_ADDRESS and GMAIL_PASSWORD is None:
+    if GMAIL_ADDRESS is None or GMAIL_PASSWORD is None:
         raise KeyError('Environment variables not set!')
 
     # Send this message
