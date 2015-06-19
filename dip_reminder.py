@@ -57,6 +57,7 @@ def send_email(group_address, time_left):
 
     except smtplib.SMTPException:
         print('Unable to send mail')
+        raise SystemExit(2)
 
 
 def set_last_reminder():
