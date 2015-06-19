@@ -21,7 +21,7 @@ def get_time_left(game_id):
 
     Returns: a datetime.timedelta object of the amount of time left
     '''
-    game_url = "http://webdiplomacy.net/board.php?gameID=%s#gamePanel" % game_id
+    game_url = "http://webdiplomacy.net/board.php?gameID={}#gamePanel".format(game_id)
     request = requests.get(game_url)
     soup = BeautifulSoup(request.text)
     # timeremaining is the class of the diplomacy span
@@ -44,8 +44,8 @@ def send_email(group_address, time_left):
         raise KeyError('Environment variables not set!')
 
     # Send this message
-    msg = 'DiploBot Reminder--There are %s day(s)' \
-          'remaining until the next turn' % time_left
+    msg = 'DiploBot Reminder--There are {} day(s)' \
+          'remaining until the next turn'.format(time_left)
 
     try:
         server = smtplib.SMTP("smtp.gmail.com:587")
@@ -124,7 +124,7 @@ def reminder(days, phase, email, game_id):
     if reminder_needed['required']:
         send_email(email, days_left)
         set_last_reminder()
-        print('Reminder email sent to %s' % email)
+        print('Reminder email sent to {}'.format(email))
     else:
         # If reminder is not true, then return the error message
         print(reminder_needed['message'])
