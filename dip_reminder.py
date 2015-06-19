@@ -24,12 +24,11 @@ def get_time_left(game_id):
     game_url = "http://webdiplomacy.net/board.php?gameID=%s#gamePanel" % game_id
     request = requests.get(game_url)
     soup = BeautifulSoup(request.text)
-    now = datetime.now()
     # timeremaining is the class of the diplomacy span
     # it includes the due date in epoch time
-    due_time = datetime.fromtimestamp(
-        int(soup.find('span', {"class": "timeremaining"}).attrs['unixtime'])
-    )
+    time_remaining_el = soup.find('span', {"class": "timeremaining"}).attrs['unixtime']
+    due_time = datetime.fromtimestamp(int(time_remaining_el))
+    now = datetime.now()
     time_left = due_time - now
     return time_left
 
